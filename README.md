@@ -1,1 +1,39 @@
-# Shoppers-Behaviour-and-Revenue
+#  Shopper Behavior and Revenue Prediction
+
+This project focuses on analyzing online shopper behavior and predicting the likelihood of purchase (Revenue) using various machine learning and deep learning techniques.
+
+##  Project Objectives
+- Understand shopper browsing behavior through EDA
+- Preprocess the data and handle class imbalance with SMOTE
+- Evaluate and compare ML models (Logistic Regression, SVM, KNN, Random Forest)
+- Develop an Artificial Neural Network (ANN) using Keras
+- Deploy an interactive Streamlit dashboard
+
+##  Models Used
+- Logistic Regression
+- Support Vector Classifier
+- K-Nearest Neighbors (KNN)
+- Random Forest Classifier
+- Artificial Neural Network (ANN)
+
+##  Results
+| Model                  | Accuracy |
+| Logistic Regression    | 87%      |
+| SVM                    | 82%      |
+| KNN                    | 86%      |
+| Random Forest          | *94%*    |
+| ANN (Deep Learning)    | 91%      |
+
+## 📊 Tools & Libraries
+- Python (Pandas, NumPy, Seaborn, Matplotlib)
+- Scikit-learn
+- imbalanced-learn (SMOTE)
+- TensorFlow & Keras
+- Streamlit
+
+##  Links 🔗
+-  
+-  
+
+##  Author
+*Abdulaziz Mohammed Alqarni*
