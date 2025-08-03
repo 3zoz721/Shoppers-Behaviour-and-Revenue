@@ -3,6 +3,6 @@ numpy
 pandas
 plotly
 plotly
-scikit_learn==1.7.1
+scikit_learn
 streamlit
-tensorflow==2.19.0
+tensorflow
