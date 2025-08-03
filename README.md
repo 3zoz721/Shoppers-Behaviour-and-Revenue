@@ -24,7 +24,7 @@ This project focuses on analyzing online shopper behavior and predicting the lik
 | Random Forest          | *94%*    |
 | ANN (Deep Learning)    | 91%      |
 
-## 📊 Tools & Libraries
+##  Tools & Libraries
 - Python (Pandas, NumPy, Seaborn, Matplotlib)
 - Scikit-learn
 - imbalanced-learn (SMOTE)
@@ -32,7 +32,7 @@ This project focuses on analyzing online shopper behavior and predicting the lik
 - Streamlit
 
 ##  Links 🔗
--  
+-  https://github.com/3zoz721/Shoppers-Behaviour-and-Revenue/blob/9d5f10dab2f6a68577d16369fa12aa16d72e1503/Shoppers%20Behaviour%20and%20Revenue.pdf
 -  
 
 ##  Author
