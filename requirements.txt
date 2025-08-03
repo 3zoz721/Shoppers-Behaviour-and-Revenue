@@ -1,8 +1,8 @@
-imbalanced_learn
-numpy
-pandas
-plotly
-plotly
-scikit_learn
-streamlit
-tensorflow
+imbalanced_learn==0.12.3
+numpy==2.3.2
+pandas==2.3.1
+plotly==5.24.1
+plotly==6.0.1
+scikit_learn==1.7.1
+streamlit==1.37.1
+tensorflow-cpu==2.19.0
