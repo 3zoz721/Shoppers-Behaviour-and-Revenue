@@ -15,7 +15,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from imblearn.over_sampling import SMOTE
 
-# Deep Learning
+# Deep Learning Libraries
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 
@@ -471,7 +471,4 @@ def main():
                         st.progress(max(probability))
 
 if __name__ == "__main__":
-
     main()
-
-
