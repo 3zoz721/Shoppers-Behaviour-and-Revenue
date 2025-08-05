@@ -6,21 +6,9 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 # ML Libraries
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-from imblearn.over_sampling import SMOTE
 
-# Deep Learning Libraries
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout
 
-import warnings
-warnings.filterwarnings('ignore')
 
 # Page Configuration
 st.set_page_config(
@@ -100,48 +88,7 @@ def preprocess_data(df):
     
     return df_encoded, scaler
 
-def train_models(X_train, X_test, y_train, y_test):
-    """Train multiple ML models"""
-    models = {
-        'Random Forest': RandomForestClassifier(random_state=42),
-        'Logistic Regression': LogisticRegression(random_state=42),
-        'SVM': SVC(random_state=42),
-        'KNN': KNeighborsClassifier()
-    }
-    
-    results = {}
-    trained_models = {}
-    
-    for name, model in models.items():
-        # Train model
-        model.fit(X_train, y_train)
-        trained_models[name] = model
-        
-        # Predictions
-        y_pred = model.predict(X_test)
-        
-        # Metrics
-        accuracy = accuracy_score(y_test, y_pred)
-        
-        results[name] = {
-            'accuracy': accuracy,
-            'predictions': y_pred
-        }
-    
-    return results, trained_models
 
-def create_ann_model(input_dim):
-    """Create ANN model"""
-    model = Sequential([
-        Dense(64, activation='relu', input_dim=input_dim),
-        Dropout(0.3),
-        Dense(32, activation='relu'),
-        Dropout(0.3),
-        Dense(1, activation='sigmoid')
-    ])
-    
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-    return model
 
 # Main App
 def main():
@@ -151,7 +98,7 @@ def main():
     # Sidebar
     st.sidebar.title("Navigation")
     page = st.sidebar.selectbox("Choose a page", 
-                               ["📊 Dashboard", "🔍 Data Exploration", "🤖 Model Training", "🎯 Predictions"])
+                               ["📊 Dashboard", "🔍 Data Exploration"])
     
     # Load data
     df = load_data()
@@ -291,184 +238,6 @@ def main():
             fig = px.box(df, x='Revenue', y=feature,
                         title=f'{feature} by Revenue')
             st.plotly_chart(fig, use_container_width=True)
-    
-    # Model Training Page
-    elif page == "🤖 Model Training":
-        st.header("Model Training & Evaluation")
-        
-        # Preprocessing
-        df_encoded, scaler = preprocess_data(df)
-        
-        # Feature selection
-        X = df_encoded.drop('Revenue', axis=1)
-        y = df_encoded['Revenue']
-        
-        # Handle class imbalance
-        if st.checkbox("Apply SMOTE for class imbalance"):
-            smote = SMOTE(random_state=42)
-            X, y = smote.fit_resample(X, y)
-            st.success("SMOTE applied successfully!")
-        
-        # Train-test split
-        test_size = st.slider("Test size", 0.1, 0.5, 0.2)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, 
-                                                           random_state=42, stratify=y)
-        
-        if st.button("Train Models"):
-            with st.spinner("Training models..."):
-                # Train traditional ML models
-                results, trained_models = train_models(X_train, X_test, y_train, y_test)
-                
-                # Train ANN
-                ann_model = create_ann_model(X_train.shape[1])
-                history = ann_model.fit(X_train, y_train, validation_split=0.2, 
-                                       epochs=30, batch_size=32, verbose=0)
-                
-                # ANN predictions
-                ann_pred = ann_model.predict(X_test)
-                ann_pred_binary = (ann_pred > 0.5).astype(int)
-                ann_accuracy = accuracy_score(y_test, ann_pred_binary)
-                
-                results['ANN'] = {'accuracy': ann_accuracy, 'predictions': ann_pred_binary}
-            
-            # Display results
-            st.subheader("Model Performance")
-            
-            # Create performance comparison
-            model_names = list(results.keys())
-            accuracies = [results[model]['accuracy'] for model in model_names]
-            
-            fig = px.bar(x=model_names, y=accuracies, 
-                        title="Model Accuracy Comparison",
-                        labels={'x': 'Model', 'y': 'Accuracy'})
-            fig.update_traces(text=[f'{acc:.3f}' for acc in accuracies], textposition='outside')
-            st.plotly_chart(fig, use_container_width=True)
-            
-            # Best model
-            best_model = max(results.keys(), key=lambda x: results[x]['accuracy'])
-            st.success(f"🏆 Best Model: {best_model} (Accuracy: {results[best_model]['accuracy']:.3f})")
-            
-            # Detailed results
-            st.subheader("Detailed Results")
-            for model_name, result in results.items():
-                with st.expander(f"{model_name} Results"):
-                    st.write(f"**Accuracy:** {result['accuracy']:.4f}")
-                    
-                    # Confusion Matrix
-                    cm = confusion_matrix(y_test, result['predictions'])
-                    fig = px.imshow(cm, text_auto=True, aspect="auto",
-                                   title=f"Confusion Matrix - {model_name}")
-                    st.plotly_chart(fig, use_container_width=True)
-                    
-                    # Classification Report
-                    report = classification_report(y_test, result['predictions'], output_dict=True)
-                    st.write("**Classification Report:**")
-                    st.json(report)
-            
-            # Store models in session state
-            st.session_state.trained_models = trained_models
-            st.session_state.scaler = scaler
-            st.session_state.feature_names = X.columns.tolist()
-    
-    # Predictions Page
-    elif page == "🎯 Predictions":
-        st.header("Make Predictions")
-        
-        if 'trained_models' not in st.session_state:
-            st.warning("Please train the models first in the Model Training page.")
-            return
-        
-        st.subheader("Input Features")
-        
-        # Create input form
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            administrative = st.number_input("Administrative Pages", min_value=0, value=2)
-            admin_duration = st.number_input("Administrative Duration", min_value=0.0, value=80.0)
-            informational = st.number_input("Informational Pages", min_value=0, value=0)
-            info_duration = st.number_input("Informational Duration", min_value=0.0, value=0.0)
-            product_related = st.number_input("Product Related Pages", min_value=0, value=32)
-            product_duration = st.number_input("Product Related Duration", min_value=0.0, value=1200.0)
-        
-        with col2:
-            bounce_rates = st.slider("Bounce Rates", 0.0, 0.2, 0.02)
-            exit_rates = st.slider("Exit Rates", 0.0, 0.2, 0.04)
-            page_values = st.number_input("Page Values", min_value=0.0, value=5.0)
-            special_day = st.slider("Special Day", 0.0, 1.0, 0.0)
-            operating_systems = st.selectbox("Operating Systems", range(1, 9), index=1)
-            browser = st.selectbox("Browser", range(1, 14), index=1)
-        
-        with col3:
-            region = st.selectbox("Region", range(1, 10), index=2)
-            traffic_type = st.selectbox("Traffic Type", range(1, 21), index=1)
-            visitor_type = st.selectbox("Visitor Type", ["New_Visitor", "Returning_Visitor", "Other"])
-            weekend = st.checkbox("Weekend")
-            month = st.selectbox("Month", ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                                         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
-        
-        if st.button("Make Prediction"):
-            # Prepare input data
-            input_data = {
-                'Administrative': administrative,
-                'Administrative_Duration': admin_duration,
-                'Informational': informational,
-                'Informational_Duration': info_duration,
-                'ProductRelated': product_related,
-                'ProductRelated_Duration': product_duration,
-                'BounceRates': bounce_rates,
-                'ExitRates': exit_rates,
-                'PageValues': page_values,
-                'SpecialDay': special_day,
-                'OperatingSystems': operating_systems,
-                'Browser': browser,
-                'Region': region,
-                'TrafficType': traffic_type,
-                'VisitorType': visitor_type,
-                'Weekend': weekend,
-                'Month': month
-            }
-            
-            # Convert to DataFrame
-            input_df = pd.DataFrame([input_data])
-            
-            # Encode categorical variables (simplified for demo)
-            # In production, you'd want to use the same encoder used during training
-            input_encoded = pd.get_dummies(input_df, columns=['Month', 'VisitorType', 'Weekend'], 
-                                          drop_first=True, dtype=int)
-            
-            # Ensure all columns are present (pad with zeros if missing)
-            for col in st.session_state.feature_names:
-                if col not in input_encoded.columns:
-                    input_encoded[col] = 0
-            
-            # Reorder columns to match training data
-            input_encoded = input_encoded.reindex(columns=st.session_state.feature_names, fill_value=0)
-            
-            # Scale numerical features
-            cols_to_scale = ['Administrative_Duration', 'Informational_Duration', 
-                           'ProductRelated_Duration', 'BounceRates', 'ExitRates', 'PageValues']
-            input_encoded[cols_to_scale] = st.session_state.scaler.transform(input_encoded[cols_to_scale])
-            
-            # Make predictions
-            st.subheader("Prediction Results")
-            
-            for model_name, model in st.session_state.trained_models.items():
-                prediction = model.predict(input_encoded)[0]
-                probability = model.predict_proba(input_encoded)[0] if hasattr(model, 'predict_proba') else None
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.write(f"**{model_name}:**")
-                    if prediction == 1:
-                        st.success("✅ Will Purchase")
-                    else:
-                        st.error("❌ Won't Purchase")
-                
-                with col2:
-                    if probability is not None:
-                        st.write(f"Confidence: {max(probability):.2%}")
-                        st.progress(max(probability))
 
 if __name__ == "__main__":
     main()
