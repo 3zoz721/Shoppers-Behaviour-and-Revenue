@@ -33,7 +33,7 @@ This project focuses on analyzing online shopper behavior and predicting the lik
 
 ##  Links 🔗
 -  https://github.com/3zoz721/Shoppers-Behaviour-and-Revenue/blob/9d5f10dab2f6a68577d16369fa12aa16d72e1503/Shoppers%20Behaviour%20and%20Revenue.pdf
--  https://github.com/3zoz721/Shoppers-Behaviour-and-Revenue/blob/93dc13cf826194387f8e7d090a8895d47ae51812/Shoppers_Behaviour_and_Revenue.py
+-  https://shoppers-behaviour-and-revenue-abdulaziz.streamlit.app/
 
 ##  Author
 *Abdulaziz Mohammed Alqarni*
